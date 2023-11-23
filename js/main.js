@@ -1,7 +1,15 @@
-import {scoreData, IDX_TYPE, IDX_SUBJECT_COUNTRY_CODE, IDX_OBJECT_COUNTRY_CODE, IDX_SCORE} from './data.js';
+import {
+  scoreData,
+  IDX_TYPE,
+  IDX_SUBJECT_COUNTRY_CODE,
+  IDX_OBJECT_COUNTRY_CODE,
+  IDX_SCORE,
+  TYPE_POLITICS,
+  TYPE_SPORTS,
+  TYPE_MILITARY
+} from './data.js';
 import iso3Codes from "./iso3.js";
 
-console.log(scoreData)
 
 function shuffle(array) {
   // 피셔-예이츠 셔플
@@ -17,35 +25,23 @@ function shuffle(array) {
   }
 }
 
-const _hexColors = [
-  '#9e0142',
-  '#d53e4f',
-  '#f46d43',
-  '#fdae61',
-  '#fee08b',
-  '#e6f598',
-  '#abdda4',
-  '#66c2a5',
-  '#3288bd',
-  "#5e4fa2"
-];
+function randomHexColor (){
+  // <random color generation>
+  // https://www.johno.com/randomness-and-color
 
-shuffle(_hexColors);
-
-const WORLD_MAP = document.getElementById('world-map');
-const MAX_SCORE = 10;
-const MIN_SCORE = 0;
-var _colorCursor = -1;
-const _sizeOfHexColors = _hexColors.length;
-
-var curType = "politics";
-
-function _getNextColorCursor() {
-  return ((++_colorCursor) % _sizeOfHexColors);
+  const hexColor = '#' + ('000000' + Math.floor(Math.random() * 16777215).toString(16)).slice(-6);
+  console.log(`hexColor: ${hexColor}`);
+  return hexColor;
 }
 
-function getNextColor() {
-  return _hexColors[_getNextColorCursor()];
+function findHexColorByCountryCode(countryCode) {
+  const idx = iso3Codes.indexOf(countryCode);
+  if (idx === -1) {
+    console.error(`해당 countryCode(${countryCode})에 대응되는 인덱스 번호를 찾을 수 없습니다.`)
+    return;
+  }
+
+  return _countryHexColors[idx];
 }
 
 function increaseBrightness(color, percent) {
@@ -62,7 +58,6 @@ function increaseBrightness(color, percent) {
 
   return 'rgb(' + r + ',' + g + ',' + b + ')';
 }
-
 
 function findRowsByTypeAndSubjectCountryCode(data, type, subjectCountryCode) {
   /**
@@ -105,7 +100,9 @@ function recolor(type, subjectCountryCode) {
     scores[targetIdx] = row[IDX_SCORE];
   })
 
-  const nextColor = getNextColor();
+  //const nextColor = getNextColor();
+  const countryColor = findHexColorByCountryCode(subjectCountryCode);
+  //const nextColor = randomHexColor();
 
   Plotly.newPlot(WORLD_MAP, [{
     type: 'choropleth',
@@ -114,8 +111,8 @@ function recolor(type, subjectCountryCode) {
     z: scores,
     colorscale: [
       [0, '#FFFFFF'],
-      [0.4, increaseBrightness(nextColor, 20)],
-      [1, nextColor]
+      [0.4, increaseBrightness(countryColor, 20)],
+      [1, countryColor]
     ],
     colorbar: {
       title: 'Score',
@@ -123,53 +120,84 @@ function recolor(type, subjectCountryCode) {
     },
   }])
     .then(gd => {
-      gd.on('plotly_click', on_click)
+      gd.on('plotly_click', onClick)
     })
 
 }
 
-
-function on_click(event) {
+function onClick(event) {
 
   // ISO-3
   const countryCode = event['points'][0]['location'];
 
   console.log(countryCode);
-  recolor(curType, countryCode);
+  if (_curClickedCountryCode === countryCode) {
+    initMap();
+    _curClickedCountryCode = null;
+  } else {
+    recolor(_curType, countryCode);
+    _curClickedCountryCode =  countryCode;
+  }
+
 }
 
-const initLocations = scoreData.map(row => {
-  return row[IDX_SUBJECT_COUNTRY_CODE];
-});
+function initMap() {
+  Plotly.newPlot(WORLD_MAP, [{
+    type: 'choropleth',
+    locationmode: "ISO-3",
+    locations: iso3Codes,
+    z: Array(iso3Codes.length).fill(0),
+    colorscale: [
+      [0, '#FFFFFF'],
+      [1, '#FFFFFF']
+    ],
+    colorbar: {
+      title: 'Score',
+      thickness: 0.5
+    },
+  }])
+    .then(gd => {
+      gd.on('plotly_click', onClick)
+    })
+}
+
+function selectType(type) {
+  // 1. 버튼 텍스트 수정
+  const btn = document.querySelector("#dropdownMenuButton1");
+  btn.innerHTML = type;
+
+  // 2. 현재 type값 세팅
+  _curType = type;
+}
+
+function onClickDropdownItem(event) {
+  console.log("드롭다운 항목들 중에서 아무거나 하나가 클릭되었습니다.")
+
+  const type = event['target']['innerText'].toLowerCase();
+  console.log(type);
+  selectType(type);
+
+}
+
+/* BEGIN: Global Constants */
+const WORLD_MAP = document.getElementById('world-map');
+const MAX_SCORE = 10;
+const MIN_SCORE = 0;
+/* END: Global Constants */
+
+/* BEGIN: Global Variables */
+// 각 나라 별로 색깔을 1개씩 할당한다.
+const _countryHexColors = Array(iso3Codes.length).fill(0).map(() => randomHexColor());
+
+var _curType = null;
+var _curClickedCountryCode = null; // 현재 클릭되어 있는 국가의 ISO 3 코드.
+/* END: Global Variables */
 
 
-Plotly.newPlot(WORLD_MAP, [{
-  type: 'choropleth',
-  locationmode: "ISO-3",
-  locations: iso3Codes,
-  z: Array(iso3Codes.length).fill(0),
-  colorscale: [
-    [0, '#FFFFFF'],
-    [1, '#FFFFFF']
-  ]
-}])
-  .then(gd => {
-    gd.on('plotly_click', on_click)
-  })
+shuffle(_countryHexColors);
+initMap();
+selectType();
 
-
-const TESTER = document.getElementById('tester');
-Plotly.newPlot(TESTER, [{
-  x: [1, 2, 3, 4, 5],
-  y: [1, 2, 4, 8, 16]
-}], {
-  margin: {t: 0}
-});
-
-
-// WORLD_MAP = document.getElementById('world-map');
-// Plotly.newPlot( WORLD_MAP, [{
-//   x: [1, 2, 3, 4, 5],
-//   y: [1, 2, 4, 8, 16] }], {
-//   margin: { t: 0 } }
-// );
+document.querySelectorAll(".dropdown-item").forEach(dropdownItem => {
+  dropdownItem.addEventListener('click', onClickDropdownItem);
+})

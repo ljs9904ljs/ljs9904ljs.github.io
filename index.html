@@ -23,6 +23,10 @@
 
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js" charset="utf-8"></script>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/chroma-js/2.4.2/chroma.min.js'></script>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 <!--  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.js"></script>-->
 </head>
 
@@ -35,7 +39,20 @@
 
   <div id="myDiv" style="width:600px;height:250px;"></div>
 
-  <div id="world-map" style="width:100%;height:100%;"></div>
+  <div id="world-map-container" class="container" style="width:100%;height:100%;">
+    <div id="world-map"></div>
+    <div class="dropdown btn-holder">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+        Dropdown button
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+        <li><a class="dropdown-item" href="#">Politics</a></li>
+        <li><a class="dropdown-item" href="#">Sports</a></li>
+        <li><a class="dropdown-item" href="#">Military</a></li>
+      </ul>
+    </div>
+  </div>
+
 
   <script>
 
@@ -54,3 +71,4 @@
 </body>
 
 </html>
+
