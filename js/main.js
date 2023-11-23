@@ -100,9 +100,7 @@ function recolor(type, subjectCountryCode) {
     scores[targetIdx] = row[IDX_SCORE];
   })
 
-  //const nextColor = getNextColor();
   const countryColor = findHexColorByCountryCode(subjectCountryCode);
-  //const nextColor = randomHexColor();
 
   Plotly.newPlot(WORLD_MAP, [{
     type: 'choropleth',
@@ -111,12 +109,13 @@ function recolor(type, subjectCountryCode) {
     z: scores,
     colorscale: [
       [0, '#FFFFFF'],
-      [0.4, increaseBrightness(countryColor, 20)],
+      [0.4, increaseBrightness(countryColor, 40)],
+      [0.8, increaseBrightness(countryColor, 20)],
       [1, countryColor]
     ],
     colorbar: {
       title: 'Score',
-      thickness: 0.5
+      thickness: 2
     },
   }])
     .then(gd => {
@@ -126,7 +125,6 @@ function recolor(type, subjectCountryCode) {
 }
 
 function onClick(event) {
-
   // ISO-3
   const countryCode = event['points'][0]['location'];
 
@@ -138,7 +136,6 @@ function onClick(event) {
     recolor(_curType, countryCode);
     _curClickedCountryCode =  countryCode;
   }
-
 }
 
 function initMap() {
@@ -153,12 +150,16 @@ function initMap() {
     ],
     colorbar: {
       title: 'Score',
-      thickness: 0.5
+      thickness: 2
     },
   }])
     .then(gd => {
       gd.on('plotly_click', onClick)
     })
+}
+
+function initType() {
+  selectType("politics");
 }
 
 function selectType(type) {
@@ -176,7 +177,6 @@ function onClickDropdownItem(event) {
   const type = event['target']['innerText'].toLowerCase();
   console.log(type);
   selectType(type);
-
 }
 
 /* BEGIN: Global Constants */
@@ -196,7 +196,7 @@ var _curClickedCountryCode = null; // 현재 클릭되어 있는 국가의 ISO 3
 
 shuffle(_countryHexColors);
 initMap();
-selectType();
+initType();
 
 document.querySelectorAll(".dropdown-item").forEach(dropdownItem => {
   dropdownItem.addEventListener('click', onClickDropdownItem);

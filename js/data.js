@@ -13,6 +13,8 @@ const scoreData = [
   ["politics", "KOR", "USA", "7.3"],
   ["politics", "USA", "KOR", "4.63"],
   ["politics", "KOR", "CHN", "2.1"],
+  ["politics", "USA", "RUS", "0.423"],
+  ["politics", "USA", "CAN", "8.8"],
 ].map((row) => {
   // string으로 되어 있는 score 값을 float 값으로 변환한다.
 
