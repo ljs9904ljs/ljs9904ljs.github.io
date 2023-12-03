@@ -5,8 +5,7 @@ import {
   IDX_OBJECT_COUNTRY_CODE,
   IDX_SCORE,
   TYPE_POLITICS,
-  TYPE_SPORTS,
-  TYPE_MILITARY
+  TYPE_ECONOMICS
 } from './data.js';
 import iso3Codes from "./iso3.js";
 
@@ -108,9 +107,9 @@ function recolor(type, subjectCountryCode) {
     locations: iso3Codes,
     z: scores,
     colorscale: [
-      [0, '#FFFFFF'],
+      [0, '#dedede'],
       [0.4, increaseBrightness(countryColor, 40)],
-      [0.8, increaseBrightness(countryColor, 20)],
+      [0.8, increaseBrightness(countryColor, 10)],
       [1, countryColor]
     ],
     colorbar: {
@@ -145,8 +144,8 @@ function initMap() {
     locations: iso3Codes,
     z: Array(iso3Codes.length).fill(0),
     colorscale: [
-      [0, '#FFFFFF'],
-      [1, '#FFFFFF']
+      [0, '#dedede'],
+      [1, '#dedede']
     ],
     colorbar: {
       title: 'Score',
@@ -177,6 +176,8 @@ function onClickDropdownItem(event) {
   const type = event['target']['innerText'].toLowerCase();
   console.log(type);
   selectType(type);
+
+  recolor(_curType, _curClickedCountryCode);
 }
 
 /* BEGIN: Global Constants */
